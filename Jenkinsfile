@@ -1,5 +1,10 @@
 pipeline {
     agent any
+    
+    // This 'tools' block tells Jenkins to install and use NodeJS
+    tools {
+        nodejs "node18"
+    }
 
     // These variables will be used in the stages
     environment {
@@ -110,3 +115,4 @@ pipeline {
         }
     }
 }
+
