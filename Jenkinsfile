@@ -57,16 +57,9 @@ pipeline {
                 // 'jenkins-gcp-key' is the Credential ID we will create in Jenkins
                 withCredentials([file(credentialsId: 'jenkins-gcp-key', variable: 'GCP_KEY_FILE')]) {
                     echo 'Authenticating to GCP...'
-                    // 1. Authenticate gcloud CLI using the downloaded JSON key
                     sh "gcloud auth activate-service-account --key-file=${GCP_KEY_FILE}"
-                    
-                    // 2. Configure Docker to use gcloud credentials for the specific region
                     sh "gcloud auth configure-docker ${GCP_REGION}-docker.pkg.dev"
-
-                    echo "Pushing image ${IMAGE_NAME_BUILD}..."
                     sh "docker push ${IMAGE_NAME_BUILD}"
-                    
-                    echo "Pushing image ${IMAGE_NAME_LATEST}..."
                     sh "docker push ${IMAGE_NAME_LATEST}"
                 }
             } // <--- THIS IS THE FIX
