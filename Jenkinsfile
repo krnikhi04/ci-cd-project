@@ -48,9 +48,9 @@ pipeline {
         }
 
         stage('5. Push to Artifact Registry') {
-            // 'jenkins-gcp-key' is the Credential ID we will create in Jenkins
-            withCredentials([file(credentialsId: 'jenkins-gcp-key', variable: 'GCP_KEY_FILE')]) {
-                steps {
+            steps { // <--- THIS IS THE FIX
+                // 'jenkins-gcp-key' is the Credential ID we will create in Jenkins
+                withCredentials([file(credentialsId: 'jenkins-gcp-key', variable: 'GCP_KEY_FILE')]) {
                     echo 'Authenticating to GCP...'
                     // 1. Authenticate gcloud CLI using the downloaded JSON key
                     sh "gcloud auth activate-service-account --key-file=${GCP_KEY_FILE}"
@@ -64,7 +64,7 @@ pipeline {
                     echo "Pushing image ${IMAGE_NAME_LATEST}..."
                     sh "docker push ${IMAGE_NAME_LATEST}"
                 }
-            }
+            } // <--- THIS IS THE FIX
         }
 
         stage('6. Deploy to Compute Engine') {
@@ -75,7 +75,7 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${TARGET_VM_USER}@${TARGET_VM_IP} '
                         
-                            # The target-server uses its attached service account (target-sa) to auth
+                            # The target-server uses its *attached* service account (target-sa) to auth
                             # We just need to configure Docker to use it
                             gcloud auth configure-docker ${GCP_REGION}-docker.pkg.dev -q
                             
